@@ -84,3 +84,64 @@ function drawGrid(ctx, canvas, selectedCells) {
     lowerCanvas.addEventListener('click', (e) => {
         handleGridClick(e, lowerCanvas, lowerSelected);
     });
+
+    // Generating the alpha
+    const generateButton = document.getElementById('generateButton');
+
+    generateButton.addEventListener('click', () => {
+        const outputCanvas = document.createElement('canvas');
+        outputCanvas.width = 1024;
+        outputCanvas.height = 1024;
+        const outputCtx = outputCanvas.getContext('2d');
+
+        // Fill whole canvas with white (this means 100% visibility)
+        outputCtx.fillStyle = 'white';
+        outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
+
+        // draw the black squares for the selected cells
+        drawAlphaMask(outputCtx, outputCanvas.width, outputCanvas.height);
+
+        // Create a PNG from the canvas and download it 
+        const link = document.createElement('a');
+        link.download = 'alpha-mask.png';
+        link.href = outputCanvas.toDataURL();
+        link.click();
+    });
+
+    function drawAlphaMask(ctx, canvasWidth, canvasHeight) {
+        const upperCellWidth = canvasWidth / GRID_SIZE;
+        const upperCellHeight = canvasHeight / (GRID_SIZE * 2); // top half
+    
+        const lowerCellWidth = canvasWidth / GRID_SIZE;
+        const lowerCellHeight = canvasHeight / (GRID_SIZE * 2); // bottom half
+    
+        // Upper body selections (top half)
+        for (let row = 0; row < GRID_SIZE; row++) {
+            for (let col = 0; col < GRID_SIZE; col++) {
+                if (upperSelected[row][col]) {
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(
+                        col * upperCellWidth,
+                        row * upperCellHeight,
+                        upperCellWidth,
+                        upperCellHeight
+                    );
+                }
+            }
+        }
+    
+        // Lower body selections (bottom half)
+        for (let row = 0; row < GRID_SIZE; row++) {
+            for (let col = 0; col < GRID_SIZE; col++) {
+                if (lowerSelected[row][col]) {
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(
+                        col * lowerCellWidth,
+                        (row * lowerCellHeight) + (canvasHeight / 2),
+                        lowerCellWidth,
+                        lowerCellHeight
+                    );
+                }
+            }
+        }
+    }
