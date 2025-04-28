@@ -147,17 +147,57 @@ function drawGrid(ctx, canvas, selectedCells) {
     // Handle Grid Size changes
     gridSizeSelect.addEventListener('change', () => {
         const newSize = parseInt(gridSizeSelect.value, 10);
-
-
-
-        // update grid size
+        const oldSize = GRID_SIZE;
+    
+        // Save the old selections
+        const oldUpperSelected = upperSelected;
+        const oldLowerSelected = lowerSelected;
+    
+        // Update the global GRID_SIZE
         GRID_SIZE = newSize;
-
-        // rebuild the selection
+    
+        // Create new empty selections
         upperSelected = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
         lowerSelected = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
-
+    
+        // Map the old selections to the new grid
+        for (let row = 0; row < oldSize; row++) {
+            for (let col = 0; col < oldSize; col++) {
+                if (oldUpperSelected[row][col]) {
+                    // Calculate the range of smaller cells this big cell covers
+                    const startRow = Math.floor(row * (GRID_SIZE / oldSize));
+                    const endRow = Math.floor((row + 1) * (GRID_SIZE / oldSize));
+                    const startCol = Math.floor(col * (GRID_SIZE / oldSize));
+                    const endCol = Math.floor((col + 1) * (GRID_SIZE / oldSize));
+    
+                    for (let r = startRow; r < endRow; r++) {
+                        for (let c = startCol; c < endCol; c++) {
+                            if (r < GRID_SIZE && c < GRID_SIZE) {
+                                upperSelected[r][c] = true;
+                            }
+                        }
+                    }
+                }
+    
+                if (oldLowerSelected[row][col]) {
+                    const startRow = Math.floor(row * (GRID_SIZE / oldSize));
+                    const endRow = Math.floor((row + 1) * (GRID_SIZE / oldSize));
+                    const startCol = Math.floor(col * (GRID_SIZE / oldSize));
+                    const endCol = Math.floor((col + 1) * (GRID_SIZE / oldSize));
+    
+                    for (let r = startRow; r < endRow; r++) {
+                        for (let c = startCol; c < endCol; c++) {
+                            if (r < GRID_SIZE && c < GRID_SIZE) {
+                                lowerSelected[r][c] = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    
         // Redraw everything
         redrawAll();
-    })
+    });
+    
     
