@@ -99,6 +99,8 @@ function drawGrid(ctx, canvas, selectedCells) {
         handleGridClick(e, lowerCanvas, lowerSelected);
     });
 
+    // Tooltip
+    const panToolTip = document.getElementById('panTooltip');
     // Add Ctrl+Drag to pan
     [upperCanvas, lowerCanvas].forEach(canvas => {
         canvas.addEventListener('mousedown', (e) => {
@@ -107,6 +109,8 @@ function drawGrid(ctx, canvas, selectedCells) {
                 panStartX = e.clientX;
                 panStartY = e.clientY;
                 e.preventDefault(); // prevents context menu appearing.
+                panToolTip.style.opacity = 1; // show the tooltip when dragging
+                updateToolTipPosition(e.clientX, e.clientY);
             }
         });
 
@@ -115,9 +119,10 @@ function drawGrid(ctx, canvas, selectedCells) {
 
                 if(!e.altKey) {
                     isPanning = false;
+                    panToolTip.style.opacity = 0; // Hide tooltip 
                     return;
                 }
-                
+
                 const dx = (e.clientX - panStartX) / zoomLevel;
                 const dy = (e.clientY - panStartY) / zoomLevel;
                 panOffsetX += dx;
@@ -125,23 +130,32 @@ function drawGrid(ctx, canvas, selectedCells) {
                 panStartX = e.clientX;
                 panStartY = e.clientY;
                 redrawAll();
+
+                updateToolTipPosition(e.clientX, e.clientY);
             }
         });
 
         canvas.addEventListener('mouseup', () => {
             if (e.button === 2) {
                 isPanning = false;
+                panToolTip.style.opacity = 0; // Hide tooltip 
             }
         });
 
         canvas.addEventListener('mouseleave', () => {
             isPanning = false;
+            panToolTip.style.opacity = 0; // Hide tooltip 
         });
 
         canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
         });
     });
+
+    function updateToolTipPosition(x, y) {
+        panToolTip.style.left = `${x + 12}px`;
+        panToolTip.style.top = `${y + 12}px`;
+    }
 
 
     // Generating the alpha

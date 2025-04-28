@@ -23,15 +23,33 @@
             <label for="fileNameInput">Filename:</label>
             <input type="text" id="fileNameInput" placeholder="alpha-mask.png"/>
         </div>
+        
         <div style="margin-bottom: 10px;">
             <button id="zoomInButton">Zoom In +</button>
             <button id="zoomOutButton">Zoom Out -</button>
+        </div>
+
+        <div id="panTooltip" style="
+            position: fixed;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 9999;
+            ">
+            PAN MODE ENABLED
         </div>
 
         <div class="canvas-container">
             <canvas id="upperCanvas" width="1024" height="1024"></canvas>
             <canvas id="lowerCanvas" width="1024" height="1024"></canvas>
         </div>
+
         <button id="generateButton">Generate Alpha</button>
         <script src="script.js" type="module"></script>
     </body>
