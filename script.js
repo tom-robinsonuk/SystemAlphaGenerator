@@ -90,20 +90,33 @@ function drawGrid(ctx, canvas, selectedCells) {
         }
     }
 
-    // Add the click handlers 
-    upperCanvas.addEventListener('click', (e) => {
-        handleGridClick(e, upperCanvas, upperSelected);
-    });
 
-    lowerCanvas.addEventListener('click', (e) => {
-        handleGridClick(e, lowerCanvas, lowerSelected);
-    });
+    // selecting + drag
+    let isSelecting = false; 
+    let selectingMode = true; // true selecting, false deselecting
 
     // Tooltip
     const panToolTip = document.getElementById('panTooltip');
+
+    let startRow = null, startCol = null;
     // Add Ctrl+Drag to pan
     [upperCanvas, lowerCanvas].forEach(canvas => {
         canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 0 && !e.altKey) {
+                isSelecting = true;
+        
+                const canvas = e.target.closest('canvas');
+                const [row, col, selectedCells] = getGridCell(canvas, e);
+        
+                if (row !== null && col !== null) {
+                    startRow = row;
+                    startCol = col;
+                    selectingMode = !selectedCells[row][col]; // Set whether we are selecting or deselecting
+                    selectedCells[row][col] = selectingMode; // Actually apply to first clicked
+                    redrawAll();
+                }
+            }
+
             if (e.altKey && e.button === 2) { // alt + right mouse button
                 isPanning = true;
                 panStartX = e.clientX;
@@ -115,6 +128,25 @@ function drawGrid(ctx, canvas, selectedCells) {
         });
 
         canvas.addEventListener('mousemove', (e) => {
+            if (isSelecting) {
+                const canvas = e.target.closest('canvas');
+                const [currentRow, currentCol, selectedCells] = getGridCell(canvas, e);
+
+                if (currentRow !== null && currentCol !== null) {
+                    const rowMin = Math.min(startRow, currentRow);
+                    const rowMax = Math.max(startRow, currentRow);
+                    const colMin = Math.min(startCol, currentCol);
+                    const colMax = Math.max(startCol, currentCol);
+
+                    for (let r = rowMin; r <= rowMax; r++) {
+                        for (let c = colMin; c <= colMax; c++) {
+                            selectedCells[r][c] = selectingMode;
+                        }
+                    }
+                    redrawAll();
+                }
+            }
+
             if (isPanning) {
 
                 if(!e.altKey) {
@@ -135,22 +167,41 @@ function drawGrid(ctx, canvas, selectedCells) {
             }
         });
 
-        canvas.addEventListener('mouseup', () => {
-            if (e.button === 2) {
-                isPanning = false;
-                panToolTip.style.opacity = 0; // Hide tooltip 
-            }
-        });
-
-        canvas.addEventListener('mouseleave', () => {
-            isPanning = false;
-            panToolTip.style.opacity = 0; // Hide tooltip 
-        });
-
         canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
         });
     });
+
+    document.addEventListener('mouseup', (e) => { 
+        if (e.button === 0 && isSelecting) {
+            isSelecting = false;
+            startRow = null;
+            startCol = null;
+        }
+        if (e.button === 2 && isPanning) {
+            isPanning = false;
+            panToolTip.style.opacity = 0;
+        }
+    });
+
+
+    function getGridCell(canvas, event) {
+        const rect = canvas.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / zoomLevel - panOffsetX;
+        const y = (event.clientY - rect.top) / zoomLevel - panOffsetY;
+
+        const cellWidth = canvas.width / GRID_SIZE;
+        const cellHeight = canvas.height / GRID_SIZE;
+
+        const col = Math.floor(x / cellWidth);
+        const row = Math.floor(y / cellHeight);
+
+        if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
+            const selectedCells = (canvas === upperCanvas) ? upperSelected : lowerSelected;
+            return [row, col, selectedCells];
+        }
+        return [null, null, null];
+    }
 
     function updateToolTipPosition(x, y) {
         panToolTip.style.left = `${x + 12}px`;
