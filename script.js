@@ -102,15 +102,22 @@ function drawGrid(ctx, canvas, selectedCells) {
     // Add Ctrl+Drag to pan
     [upperCanvas, lowerCanvas].forEach(canvas => {
         canvas.addEventListener('mousedown', (e) => {
-            if (e.ctrlKey) {
+            if (e.altKey && e.button === 2) { // alt + right mouse button
                 isPanning = true;
                 panStartX = e.clientX;
                 panStartY = e.clientY;
+                e.preventDefault(); // prevents context menu appearing.
             }
         });
 
         canvas.addEventListener('mousemove', (e) => {
             if (isPanning) {
+
+                if(!e.altKey) {
+                    isPanning = false;
+                    return;
+                }
+                
                 const dx = (e.clientX - panStartX) / zoomLevel;
                 const dy = (e.clientY - panStartY) / zoomLevel;
                 panOffsetX += dx;
@@ -122,13 +129,19 @@ function drawGrid(ctx, canvas, selectedCells) {
         });
 
         canvas.addEventListener('mouseup', () => {
-            isPanning = false;
+            if (e.button === 2) {
+                isPanning = false;
+            }
         });
 
         canvas.addEventListener('mouseleave', () => {
             isPanning = false;
         });
-    })
+
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+    });
 
 
     // Generating the alpha
