@@ -103,7 +103,21 @@ function drawGrid(ctx, canvas, selectedCells) {
 
         // Create a PNG from the canvas and download it 
         const link = document.createElement('a');
-        link.download = 'alpha-mask.png';
+        //link.download = 'alpha-mask.png';
+        const filenameInput = document.getElementById('fileNameInput');
+        let filename = filenameInput.value.trim();
+
+        // default fallback if left it empty
+        if (!filename) {
+            filename = 'alpha-mask';
+        }
+
+        // ensure it ends with .png ( always want png for its alpha channel)
+        if (!filename.toLowerCase().endsWith('.png')) {
+            filename += '.png';
+        }
+        link.download = filename;
+
         link.href = outputCanvas.toDataURL();
         link.click();
     });
