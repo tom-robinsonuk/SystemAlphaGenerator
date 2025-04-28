@@ -6,11 +6,11 @@ const upperCtx = upperCanvas.getContext('2d');
 const lowerCtx = lowerCanvas.getContext('2d');
 
 // Configure Grid size
-const GRID_SIZE = 16; 
+let GRID_SIZE = 16; 
 
 // Store Selected cells
-const upperSelected = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
-const lowerSelected = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
+let upperSelected = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
+let lowerSelected = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
 
 // Load the Upper body UV Map
 const upperImage = new Image();
@@ -141,4 +141,23 @@ function drawGrid(ctx, canvas, selectedCells) {
           }
         }
       }
+
+    const gridSizeSelect = document.getElementById('gridSizeSelect');
+
+    // Handle Grid Size changes
+    gridSizeSelect.addEventListener('change', () => {
+        const newSize = parseInt(gridSizeSelect.value, 10);
+
+
+
+        // update grid size
+        GRID_SIZE = newSize;
+
+        // rebuild the selection
+        upperSelected = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
+        lowerSelected = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
+
+        // Redraw everything
+        redrawAll();
+    })
     
