@@ -7,6 +7,14 @@ const lowerCtx = lowerCanvas.getContext('2d');
 
 // Configure Grid size
 let GRID_SIZE = 16; 
+let zoomLevel = 1.0;
+
+// Panning and moving around
+let isPanning = false;
+let panStartX = 0;
+let panStartY = 0;
+let panOffsetX = 0;
+let panOffsetY = 0;
 
 // Store Selected cells
 let upperSelected = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
@@ -50,19 +58,25 @@ function drawGrid(ctx, canvas, selectedCells) {
 
     // Redraw
     function redrawAll() {
+        upperCtx.setTransform(1, 0, 0, 1, 0, 0); // Reset any existing transforms
         upperCtx.clearRect(0, 0, upperCanvas.width, upperCanvas.height);
+        upperCtx.scale(zoomLevel, zoomLevel); // Apply the zoom
+        upperCtx.translate(panOffsetX, panOffsetY); // apply pan
         upperCtx.drawImage(upperImage, 0, 0, upperCanvas.width, upperCanvas.height);
         drawGrid(upperCtx, upperCanvas, upperSelected);
     
+        lowerCtx.setTransform(1, 0, 0, 1, 0, 0); // Reset any existing transforms
         lowerCtx.clearRect(0, 0, lowerCanvas.width, lowerCanvas.height);
+        lowerCtx.scale(zoomLevel, zoomLevel); // Apply the zoom
+        lowerCtx.translate(panOffsetX, panOffsetY); // apply pan
         lowerCtx.drawImage(lowerImage, 0, 0, lowerCanvas.width, lowerCanvas.height);
         drawGrid(lowerCtx, lowerCanvas, lowerSelected);
     }
     // Handle the clicks
     function handleGridClick(event, canvas, selectedCells) {
         const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+        let x = (event.clientX - rect.left) / zoomLevel - panOffsetX;
+        let y = (event.clientY - rect.top) / zoomLevel - panOffsetY;
     
         const cellWidth = canvas.width / GRID_SIZE;
         const cellHeight = canvas.height / GRID_SIZE;
@@ -84,6 +98,38 @@ function drawGrid(ctx, canvas, selectedCells) {
     lowerCanvas.addEventListener('click', (e) => {
         handleGridClick(e, lowerCanvas, lowerSelected);
     });
+
+    // Add Ctrl+Drag to pan
+    [upperCanvas, lowerCanvas].forEach(canvas => {
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.ctrlKey) {
+                isPanning = true;
+                panStartX = e.clientX;
+                panStartY = e.clientY;
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isPanning) {
+                const dx = (e.clientX - panStartX) / zoomLevel;
+                const dy = (e.clientY - panStartY) / zoomLevel;
+                panOffsetX += dx;
+                panOffsetY += dy;
+                panStartX = e.clientX;
+                panStartY = e.clientY;
+                redrawAll();
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isPanning = false;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isPanning = false;
+        });
+    })
+
 
     // Generating the alpha
     const generateButton = document.getElementById('generateButton');
@@ -214,4 +260,15 @@ function drawGrid(ctx, canvas, selectedCells) {
         redrawAll();
     });
     
-    
+    const zoomInButton = document.getElementById('zoomInButton');
+    const zoomOutButton = document.getElementById('zoomOutButton');
+
+    zoomInButton.addEventListener('click', () => {
+        zoomLevel *= 1.25; // zoom in 25%
+        redrawAll();
+    });
+
+    zoomOutButton.addEventListener('click', () => {
+        zoomLevel /= 1.25; // zoom out 25%
+        redrawAll();
+    });
