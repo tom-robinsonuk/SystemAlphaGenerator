@@ -109,39 +109,36 @@ function drawGrid(ctx, canvas, selectedCells) {
     });
 
     function drawAlphaMask(ctx, canvasWidth, canvasHeight) {
-        const upperCellWidth = canvasWidth / GRID_SIZE;
-        const upperCellHeight = canvasHeight / (GRID_SIZE * 2); // top half
-    
-        const lowerCellWidth = canvasWidth / GRID_SIZE;
-        const lowerCellHeight = canvasHeight / (GRID_SIZE * 2); // bottom half
-    
-        // Upper body selections (top half)
+        const halfHeight = canvasHeight / 2;
+        const cellWidth = canvasWidth  / GRID_SIZE;   // 1024 / 16 = 64px
+        const cellHeight = canvasHeight / GRID_SIZE;  // 1024 / 16 = 64px
+      
+        // Clear upper body cells (top half)
         for (let row = 0; row < GRID_SIZE; row++) {
-            for (let col = 0; col < GRID_SIZE; col++) {
-                if (upperSelected[row][col]) {
-                    ctx.fillStyle = 'black';
-                    ctx.fillRect(
-                        col * upperCellWidth,
-                        row * upperCellHeight,
-                        upperCellWidth,
-                        upperCellHeight
-                    );
-                }
+          for (let col = 0; col < GRID_SIZE; col++) {
+            if (upperSelected[row][col]) {
+              ctx.clearRect(
+                col * cellWidth,
+                row * cellHeight,
+                cellWidth,
+                cellHeight
+              );
             }
+          }
         }
-    
-        // Lower body selections (bottom half)
+      
+        // Clear lower body cells (bottom half)
         for (let row = 0; row < GRID_SIZE; row++) {
-            for (let col = 0; col < GRID_SIZE; col++) {
-                if (lowerSelected[row][col]) {
-                    ctx.fillStyle = 'black';
-                    ctx.fillRect(
-                        col * lowerCellWidth,
-                        (row * lowerCellHeight) + (canvasHeight / 2),
-                        lowerCellWidth,
-                        lowerCellHeight
-                    );
-                }
+          for (let col = 0; col < GRID_SIZE; col++) {
+            if (lowerSelected[row][col]) {
+              ctx.clearRect(
+                col * cellWidth,
+                halfHeight + row * cellHeight,
+                cellWidth,
+                cellHeight
+              );
             }
+          }
         }
-    }
+      }
+    

@@ -8,9 +8,24 @@
     </head>
     <body>
         <h1> SL SYSTEM ALPHA GENERATOR </h1>
+
+        <!--- Controllers -->
+        <div class="controls">
+            <label for="gridSizeSelect">Grid Size:</label>
+            <select id="gridSizeSelect">
+                <option value="8">8 x 8</option>
+                <option value="16" selected>16 x 16</option>
+                <option value="32">32 x 32</option>
+                <option value="64">64 x 64</option>
+            </select>
+
+            <label for="fileNameInput">Filename:</label>
+            <input type="text" id="fileNameInput" placeholder="alpha-mask.png"/>
+        </div>
+
         <div class="canvas-container">
-            <canvas id="upperCanvas" width="768" height="768"></canvas>
-            <canvas id="lowerCanvas" width="768" height="768"></canvas>
+            <canvas id="upperCanvas" width="1024" height="1024"></canvas>
+            <canvas id="lowerCanvas" width="1024" height="1024"></canvas>
         </div>
         <button id="generateButton">Generate Alpha</button>
         <script src="script.js" type="module"></script>
