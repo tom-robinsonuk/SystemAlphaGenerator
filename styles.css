@@ -45,3 +45,7 @@ button:hover {
 #generateButton {
     background-color: #188bc5;
 }
+
+#clearAllButton {
+    background-color: #de2020;
+}

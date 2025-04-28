@@ -246,6 +246,20 @@ function drawGrid(ctx, canvas, selectedCells) {
         link.click();
     });
 
+    const clearAllButton = document.getElementById('clearAllButton');
+
+    clearAllButton.addEventListener('click', () => {
+        if (confirm("Are you sure you want to clear all selections?")) {
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    upperSelected[row][col] = false;
+                    lowerSelected[row][col] = false;
+                }
+            }
+            redrawAll();
+        }
+    });
+
     function drawAlphaMask(ctx, canvasWidth, canvasHeight) {
         const halfHeight = canvasHeight / 2;
         const cellWidth = canvasWidth  / GRID_SIZE;   // 1024 / 16 = 64px
