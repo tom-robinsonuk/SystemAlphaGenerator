@@ -23,6 +23,12 @@ canvas {
     background-color: #fff;
 }
 
+.configuration {
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+
 button {
     padding: 10px 20px;
     font-size: 10px;

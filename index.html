@@ -9,8 +9,15 @@
     <body>
         <h1> SL SYSTEM ALPHA GENERATOR </h1>
         <p> Alt + RightClick to pan</p>
-
+        <p> - - - - - - - </p>
         <!--- Controllers -->
+        <div class="configuration">
+            <label for="uvSelector">Select UV layout:</label>
+            <select id="uvSelector">
+                <option value="upper">Upper Body</option>
+                <option value="lower">Lower body</option>
+            </select>
+        </div>
         <div class="controls">
             <label for="gridSizeSelect">Grid Size:</label>
             <select id="gridSizeSelect">
@@ -23,13 +30,14 @@
                 <option value="512">512 x 512</option>
             </select>
 
+
             <label for="fileNameInput">Filename:</label>
             <input type="text" id="fileNameInput" placeholder="alpha-mask.png"/>
         </div>
 
         <button id="generateButton">Generate Alpha</button>
         <button id="clearAllButton">Clear All</button>
-        
+
         <div style="margin-bottom: 10px;">
             <button id="zoomInButton">Zoom In +</button>
             <button id="zoomOutButton">Zoom Out -</button>
@@ -52,8 +60,7 @@
         </div>
 
         <div class="canvas-container">
-            <canvas id="upperCanvas" width="1024" height="1024"></canvas>
-            <canvas id="lowerCanvas" width="1024" height="1024"></canvas>
+            <canvas id="mainCanvas" width="1024" height="1024"></canvas>
         </div>
 
         <script src="script.js" type="module"></script>
