@@ -336,6 +336,7 @@ gridSizeSelect.addEventListener('change', () => {
 
 const zoomInButton = document.getElementById('zoomInButton');
 const zoomOutButton = document.getElementById('zoomOutButton');
+const resetViewButton = document.getElementById('resetViewButton');
 
 zoomInButton.addEventListener('click', () => {
     zoomLevel *= 1.25;
@@ -344,5 +345,12 @@ zoomInButton.addEventListener('click', () => {
 
 zoomOutButton.addEventListener('click', () => {
     zoomLevel /= 1.25;
+    redrawAll();
+});
+
+resetViewButton.addEventListener('click', () => {
+    zoomLevel = 1.0;
+    panOffsetX = 0;
+    panOffsetY = 0;
     redrawAll();
 });
