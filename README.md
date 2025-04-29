@@ -20,3 +20,11 @@ An easy-to-use UV alpha mask editor for Second Life and similar platforms. Selec
 
 ## 📦 Usage
 npx http-server --trace-deprecation
+
+## 🌐 Hosting
+This tool works great as a static site.
+Recommended: Netlify or Vercel
+You can also embed it in other websites using an <iframe>
+
+## 🧠 Credits & Notes
+Inspired by the needs of Second Life creators for quick and flexible alpha generation.
