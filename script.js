@@ -3,7 +3,42 @@
 const canvas = document.getElementById('mainCanvas');
 const ctx = canvas.getContext('2d');
 
-let activeUV = 'upper'; // Set the active UV to begin
+// Loading the UV maps
+let uvMaps = {};
+let currentImage = new Image();
+let activeUV = 'Meshbody_F_Upper'; // Set the active UV to begin
+
+fetch('./config/uvmaps.json')
+    .then(response => response.json())
+    .then(data => {
+        uvMaps = data;
+        loadUVImage(activeUV);
+        populateUVDropdown(); // create the dropdown based on the json config
+    });
+
+function loadUVImage(key) {
+    currentImage.src = uvMaps[key];
+    currentImage.onload = () => redrawAll();
+}
+
+function populateUVDropdown() {
+    const dropdown = document.getElementById('uvSelector');
+    dropdown.innerHTML = ''; // clear old options
+
+    for (let key in uvMaps) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = key;
+        dropdown.appendChild(option);
+    }
+
+    dropdown.value = activeUV;
+
+    dropdown.addEventListener('change', () => {
+        activeUV = dropdown.value;
+        loadUVImage(activeUV);
+    });
+}
 
 // Configure Grid size
 let GRID_SIZE = 16; 
@@ -19,20 +54,6 @@ let panOffsetY = 0;
 // Store Selected cells
 let upperSelected = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
 let lowerSelected = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
-
-// Load the Upper body UV Map
-const upperImage = new Image();
-upperImage.src = '/assets/Meshbody_F_upper_uv.png';
-upperImage.onload = () => {
-    redrawAll();
-};
-
-// Load the Lower body UV Map
-const lowerImage = new Image();
-lowerImage.src = '/assets/Meshbody_F_lower_uv.png';
-lowerImage.onload = () => {
-    redrawAll();
-};
 
 // Draw the grid on the canvas
 function drawGrid(ctx, canvas, selectedCells) {
@@ -62,20 +83,16 @@ function redrawAll() {
     ctx.scale(zoomLevel, zoomLevel);
     ctx.translate(panOffsetX, panOffsetY);
 
-    if (activeUV === 'upper') {
-        ctx.drawImage(upperImage, 0, 0, canvas.width, canvas.height);
-        drawGrid(ctx, canvas, upperSelected);
-    } else if (activeUV === 'lower') {
-        ctx.drawImage(lowerImage, 0, 0, canvas.width, canvas.height);
-        drawGrid(ctx, canvas, lowerSelected);
-    }
+    ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+    const selectedCells = (activeUV === 'Meshbody_F_Upper' || activeUV === 'Meshbody_M_Upper') ? upperSelected : lowerSelected;
+    drawGrid(ctx, canvas, selectedCells);
 }
 
 // handle the uv switch when dropdown changes
 const uvSelector = document.getElementById('uvSelector');
 uvSelector.addEventListener('change', () => {
     activeUV = uvSelector.value;
-    redrawAll();
+    loadUVImage(activeUV);
 });
 
 // Handle the clicks
@@ -91,7 +108,7 @@ function handleGridClick(event) {
     const row = Math.floor(y / cellHeight);
 
     if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
-        const selectedCells = (activeUV === 'upper') ? upperSelected : lowerSelected;
+        const selectedCells = (activeUV === 'Meshbody_F_Upper' || activeUV === 'Meshbody_M_Upper') ? upperSelected : lowerSelected;
         selectedCells[row][col] = !selectedCells[row][col];
         redrawAll();
     }
@@ -195,7 +212,7 @@ function getGridCell(canvas, event) {
     const row = Math.floor(y / cellHeight);
 
     if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
-        const selectedCells = (activeUV === 'upper') ? upperSelected : lowerSelected;
+        const selectedCells = (activeUV === 'Meshbody_F_Upper' || activeUV === 'Meshbody_M_Upper') ? upperSelected : lowerSelected;
         return [row, col, selectedCells];
     }
     return [null, null, null];
@@ -254,30 +271,17 @@ function drawAlphaMask(ctx, canvasWidth, canvasHeight) {
     const cellWidth = canvasWidth  / GRID_SIZE;
     const cellHeight = canvasHeight / GRID_SIZE;
 
-    if (activeUV === 'upper') {
-        for (let row = 0; row < GRID_SIZE; row++) {
-            for (let col = 0; col < GRID_SIZE; col++) {
-                if (upperSelected[row][col]) {
-                    ctx.clearRect(
-                        col * cellWidth,
-                        row * cellHeight,
-                        cellWidth,
-                        cellHeight
-                    );
-                }
-            }
-        }
-    } else if (activeUV === 'lower') {
-        for (let row = 0; row < GRID_SIZE; row++) {
-            for (let col = 0; col < GRID_SIZE; col++) {
-                if (lowerSelected[row][col]) {
-                    ctx.clearRect(
-                        col * cellWidth,
-                        row * cellHeight,
-                        cellWidth,
-                        cellHeight
-                    );
-                }
+    const selectedCells = (activeUV === 'Meshbody_F_Upper' || activeUV === 'Meshbody_M_Upper') ? upperSelected : lowerSelected;
+
+    for (let row = 0; row < GRID_SIZE; row++) {
+        for (let col = 0; col < GRID_SIZE; col++) {
+            if (selectedCells[row][col]) {
+                ctx.clearRect(
+                    col * cellWidth,
+                    row * cellHeight,
+                    cellWidth,
+                    cellHeight
+                );
             }
         }
     }
